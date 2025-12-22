@@ -27,10 +27,6 @@ LOOM is a modern, modular web application that centralizes personal management t
   - Packing lists (reusable templates)
   - Travel document tracking
   - Trip expense tracking
-- **Subscriptions** - Smart renewal reminder system:
-  - Configurable renewal cycles (weekly, monthly, annual, custom)
-  - Advance notification (user-defined days before renewal)
-  - Cost tracking for budgeting
 
 ## Technology Stack
 
@@ -170,8 +166,7 @@ LOOM/
 │   │   ├── event.py
 │   │   ├── todo.py
 │   │   ├── recipe.py
-│   │   ├── travel.py
-│   │   └── subscription.py
+│   │   └── travel.py
 │   ├── modules/                 # Application modules (blueprints)
 │   │   ├── dashboard/
 │   │   ├── notes/
@@ -179,8 +174,7 @@ LOOM/
 │   │   ├── events/
 │   │   ├── todos/
 │   │   ├── recipes/
-│   │   ├── travel/
-│   │   └── subscriptions/
+│   │   └── travel/
 │   ├── static/                  # Static files (CSS, JS, images)
 │   │   ├── css/
 │   │   └── js/
@@ -241,16 +235,6 @@ LOOM/
 - `POST /travel/api/trips/<id>/itinerary` - Add itinerary item
 - `POST /travel/api/trips/<id>/packing-list` - Create packing list
 - `POST /travel/api/trips/<id>/expenses` - Add expense
-
-### Subscriptions API
-
-- `GET /subscriptions/api/subscriptions` - Get all subscriptions
-- `POST /subscriptions/api/subscriptions` - Create a subscription
-- `GET /subscriptions/api/subscriptions/<id>` - Get a specific subscription
-- `PUT /subscriptions/api/subscriptions/<id>` - Update a subscription
-- `DELETE /subscriptions/api/subscriptions/<id>` - Delete a subscription
-- `GET /subscriptions/api/subscriptions/reminders` - Get due reminders
-- `POST /subscriptions/api/subscriptions/<id>/renew` - Mark as renewed
 
 ## Security Considerations
 

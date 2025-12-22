@@ -37,7 +37,6 @@ Database models using SQLAlchemy ORM. Each model represents a database table.
 - **`todo.py`**: Todo and TodoReminder models
 - **`recipe.py`**: Recipe, RecipeIngredient, RecipeTag, ShoppingListItem models
 - **`travel.py`**: Trip, Itinerary, PackingList, PackingItem, TravelExpense models
-- **`subscription.py`**: Subscription model with renewal logic
 
 ### `/app/modules`
 Flask blueprints for each feature module. Each module contains:

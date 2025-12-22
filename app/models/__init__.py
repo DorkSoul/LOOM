@@ -6,7 +6,6 @@ from app.models.event import Event
 from app.models.todo import Todo, TodoReminder
 from app.models.recipe import Recipe, RecipeIngredient, RecipeTag, ShoppingListItem
 from app.models.travel import Trip, Itinerary, PackingList, PackingItem, TravelExpense
-from app.models.subscription import Subscription
 
 __all__ = [
     'Note',
@@ -21,6 +20,5 @@ __all__ = [
     'Itinerary',
     'PackingList',
     'PackingItem',
-    'TravelExpense',
-    'Subscription'
+    'TravelExpense'
 ]

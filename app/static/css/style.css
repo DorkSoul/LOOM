@@ -1,4 +1,4 @@
-/* LOOM - Main Stylesheet */
+/* LOOM - Main Stylesheet - Dark Mode */
 
 * {
     margin: 0;
@@ -7,15 +7,19 @@
 }
 
 :root {
-    --primary-color: #3788d8;
-    --secondary-color: #2c3e50;
-    --background-color: #f5f7fa;
-    --card-background: #ffffff;
-    --text-color: #333333;
-    --border-color: #e1e8ed;
-    --success-color: #27ae60;
+    /* Dark mode color palette */
+    --primary-color: #4a9eff;
+    --secondary-color: #1a1d29;
+    --background-color: #0d0f14;
+    --card-background: #1a1d29;
+    --text-color: #e4e6eb;
+    --text-muted: #b0b3b8;
+    --border-color: #2d3139;
+    --hover-bg: #252832;
+    --success-color: #2ecc71;
     --warning-color: #f39c12;
     --danger-color: #e74c3c;
+    --accent-color: #7c3aed;
 }
 
 body {
@@ -33,12 +37,17 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .nav-brand h1 {
     font-size: 1.5rem;
     font-weight: bold;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .nav-menu {
@@ -48,13 +57,16 @@ body {
 }
 
 .nav-menu a {
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
-    transition: color 0.3s;
+    transition: all 0.3s;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
 }
 
 .nav-menu a:hover {
     color: var(--primary-color);
+    background-color: var(--hover-bg);
 }
 
 /* Container */
@@ -74,7 +86,7 @@ body {
 
 .page-header h2 {
     font-size: 2rem;
-    color: var(--secondary-color);
+    color: var(--text-color);
 }
 
 /* Buttons */
@@ -108,12 +120,13 @@ body {
     background: var(--card-background);
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
 }
 
 .dashboard-card h3 {
     margin-bottom: 1rem;
-    color: var(--secondary-color);
+    color: var(--text-color);
     border-bottom: 2px solid var(--primary-color);
     padding-bottom: 0.5rem;
 }
@@ -121,11 +134,18 @@ body {
 .dashboard-item {
     padding: 0.75rem;
     margin-bottom: 0.5rem;
-    background: var(--background-color);
-    border-radius: 4px;
+    background: var(--hover-bg);
+    border-radius: 6px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+
+.dashboard-item:hover {
+    background: var(--background-color);
+    border-color: var(--primary-color);
 }
 
 /* Notes */
@@ -139,19 +159,21 @@ body {
     background: var(--card-background);
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.2s;
 }
 
 .note-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
+    border-color: var(--primary-color);
 }
 
 .note-card h3 {
     margin-bottom: 0.5rem;
-    color: var(--secondary-color);
+    color: var(--text-color);
 }
 
 .note-meta {
@@ -160,16 +182,22 @@ body {
     align-items: center;
     margin-top: 1rem;
     font-size: 0.875rem;
-    color: #666;
+    color: var(--text-muted);
+}
+
+.note-card p {
+    color: var(--text-muted);
+    line-height: 1.5;
 }
 
 .pinned-badge {
-    background-color: var(--warning-color);
+    background-color: var(--accent-color);
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.75rem;
     float: right;
+    font-weight: 500;
 }
 
 /* Priority badges */

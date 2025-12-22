@@ -36,7 +36,6 @@ def create_app(config_name=None):
     from app.modules.todos import todos_bp
     from app.modules.recipes import recipes_bp
     from app.modules.travel import travel_bp
-    from app.modules.subscriptions import subscriptions_bp
     from app.modules.dashboard import dashboard_bp
 
     app.register_blueprint(dashboard_bp, url_prefix='/')
@@ -46,7 +45,6 @@ def create_app(config_name=None):
     app.register_blueprint(todos_bp, url_prefix='/todos')
     app.register_blueprint(recipes_bp, url_prefix='/recipes')
     app.register_blueprint(travel_bp, url_prefix='/travel')
-    app.register_blueprint(subscriptions_bp, url_prefix='/subscriptions')
 
     # Health check endpoint
     @app.route('/health')

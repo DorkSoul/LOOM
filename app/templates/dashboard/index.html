@@ -21,11 +21,6 @@
             <h3>Recent Notes</h3>
             <div id="recent-notes"></div>
         </div>
-
-        <div class="dashboard-card">
-            <h3>Upcoming Renewals</h3>
-            <div id="upcoming-subscriptions"></div>
-        </div>
     </div>
 </div>
 
@@ -37,7 +32,6 @@
             displayUpcomingEvents(data.upcoming_events);
             displayPendingTodos(data.pending_todos);
             displayRecentNotes(data.recent_notes);
-            displayUpcomingSubscriptions(data.upcoming_subscriptions);
         });
 
     function displayUpcomingEvents(events) {
@@ -78,20 +72,6 @@
             <div class="dashboard-item">
                 <strong>${note.title}</strong>
                 <span>${new Date(note.updated_at).toLocaleDateString()}</span>
-            </div>
-        `).join('');
-    }
-
-    function displayUpcomingSubscriptions(subscriptions) {
-        const container = document.getElementById('upcoming-subscriptions');
-        if (subscriptions.length === 0) {
-            container.innerHTML = '<p>No upcoming renewals</p>';
-            return;
-        }
-        container.innerHTML = subscriptions.map(sub => `
-            <div class="dashboard-item">
-                <strong>${sub.name}</strong>
-                <span>${new Date(sub.next_billing_date).toLocaleDateString()} - $${sub.cost}</span>
             </div>
         `).join('');
     }
