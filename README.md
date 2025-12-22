@@ -81,7 +81,7 @@ LOOM is a modern, modular web application that centralizes personal management t
 
    Open your browser and navigate to:
    ```
-   http://<your-nas-ip>:5001
+   http://<your-nas-ip>:5847
    ```
 
 ## Configuration
@@ -95,6 +95,7 @@ SECRET_KEY=your-random-secret-key-here
 DATABASE_PATH=/app/data/loom.db
 FLASK_ENV=production
 LOG_LEVEL=INFO
+PORT=5847
 ```
 
 ### Volume Configuration
@@ -298,8 +299,9 @@ cp /volume2/Dockerssd/loom/data/loom.db /volume2/Dockerssd/loom/backups/loom-$(d
    docker ps | grep loom
    ```
 
-2. Check port mapping in docker-compose.yml
+2. Check port 5847 is not blocked by firewall
 3. Verify firewall rules on NAS
+4. Try accessing: http://<nas-ip>:5847
 
 ## Contributing
 

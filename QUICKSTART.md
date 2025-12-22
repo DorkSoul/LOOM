@@ -24,7 +24,7 @@ services:
     container_name: loom
     restart: unless-stopped
     ports:
-      - "5001:5000"
+      - "5847:5847"
     volumes:
       - /volume2/Dockerssd/loom/data:/app/data:rw
       - /volume2/Dockerssd/loom/logs:/app/logs:rw
@@ -32,8 +32,9 @@ services:
       - FLASK_ENV=production
       - DATABASE_PATH=/app/data/loom.db
       - SECRET_KEY=change-this-to-a-random-secret-key
+      - PORT=5847
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:5847/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -51,10 +52,10 @@ docker-compose up -d
 
 Open your browser and go to:
 ```
-http://<your-nas-ip>:5001
+http://<your-nas-ip>:5847
 ```
 
-Example: `http://192.168.1.100:5001`
+Example: `http://192.168.1.100:5847`
 
 ---
 
@@ -202,7 +203,7 @@ docker logs loom
 ### Check Health Status
 
 ```bash
-curl http://localhost:5001/health
+curl http://localhost:5847/health
 ```
 
 ### Restart from Scratch
