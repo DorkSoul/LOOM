@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Notes - LOOM{% endblock %}
+
+{% block content %}
+<div class="notes">
+    <div class="page-header">
+        <h2>Notes</h2>
+        <button id="new-note-btn" class="btn btn-primary">New Note</button>
+    </div>
+
+    <div class="notes-container">
+        <div id="notes-list"></div>
+    </div>
+</div>
+
+<script>
+    // Load notes
+    function loadNotes() {
+        fetch('/notes/api/notes')
+            .then(response => response.json())
+            .then(notes => {
+                const container = document.getElementById('notes-list');
+                if (notes.length === 0) {
+                    container.innerHTML = '<p>No notes yet. Create your first note!</p>';
+                    return;
+                }
+                container.innerHTML = notes.map(note => `
+                    <div class="note-card" data-id="${note.id}">
+                        ${note.is_pinned ? '<span class="pinned-badge">Pinned</span>' : ''}
+                        <h3>${note.title}</h3>
+                        <p>${note.content ? note.content.substring(0, 150) + '...' : ''}</p>
+                        <div class="note-meta">
+                            ${note.category ? `<span class="category">${note.category}</span>` : ''}
+                            <span class="date">${new Date(note.updated_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+            });
+    }
+
+    document.getElementById('new-note-btn').addEventListener('click', () => {
+        const title = prompt('Note title:');
+        if (title) {
+            fetch('/notes/api/notes', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({title: title})
+            })
+            .then(() => loadNotes());
+        }
+    });
+
+    loadNotes();
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+.github
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+venv
+env
+ENV
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Docs
+README.md
+LICENSE
+*.md
+
+# Development
+.env
+*.db
+*.sqlite
+*.sqlite3
+logs/
+data/
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore

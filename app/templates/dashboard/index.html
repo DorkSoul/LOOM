@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - LOOM{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Dashboard</h2>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h3>Upcoming Events</h3>
+            <div id="upcoming-events"></div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Pending Todos</h3>
+            <div id="pending-todos"></div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Recent Notes</h3>
+            <div id="recent-notes"></div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Upcoming Renewals</h3>
+            <div id="upcoming-subscriptions"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load dashboard data
+    fetch('/api/overview')
+        .then(response => response.json())
+        .then(data => {
+            displayUpcomingEvents(data.upcoming_events);
+            displayPendingTodos(data.pending_todos);
+            displayRecentNotes(data.recent_notes);
+            displayUpcomingSubscriptions(data.upcoming_subscriptions);
+        });
+
+    function displayUpcomingEvents(events) {
+        const container = document.getElementById('upcoming-events');
+        if (events.length === 0) {
+            container.innerHTML = '<p>No upcoming events</p>';
+            return;
+        }
+        container.innerHTML = events.map(event => `
+            <div class="dashboard-item">
+                <strong>${event.title}</strong>
+                <span>${new Date(event.start_time).toLocaleDateString()}</span>
+            </div>
+        `).join('');
+    }
+
+    function displayPendingTodos(todos) {
+        const container = document.getElementById('pending-todos');
+        if (todos.length === 0) {
+            container.innerHTML = '<p>No pending todos</p>';
+            return;
+        }
+        container.innerHTML = todos.map(todo => `
+            <div class="dashboard-item priority-${todo.priority}">
+                <strong>${todo.title}</strong>
+                <span class="priority-badge">${todo.priority}</span>
+            </div>
+        `).join('');
+    }
+
+    function displayRecentNotes(notes) {
+        const container = document.getElementById('recent-notes');
+        if (notes.length === 0) {
+            container.innerHTML = '<p>No recent notes</p>';
+            return;
+        }
+        container.innerHTML = notes.map(note => `
+            <div class="dashboard-item">
+                <strong>${note.title}</strong>
+                <span>${new Date(note.updated_at).toLocaleDateString()}</span>
+            </div>
+        `).join('');
+    }
+
+    function displayUpcomingSubscriptions(subscriptions) {
+        const container = document.getElementById('upcoming-subscriptions');
+        if (subscriptions.length === 0) {
+            container.innerHTML = '<p>No upcoming renewals</p>';
+            return;
+        }
+        container.innerHTML = subscriptions.map(sub => `
+            <div class="dashboard-item">
+                <strong>${sub.name}</strong>
+                <span>${new Date(sub.next_billing_date).toLocaleDateString()} - $${sub.cost}</span>
+            </div>
+        `).join('');
+    }
+</script>
+{% endblock %}
