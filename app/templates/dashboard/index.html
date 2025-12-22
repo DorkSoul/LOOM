@@ -37,11 +37,11 @@
     function displayUpcomingEvents(events) {
         const container = document.getElementById('upcoming-events');
         if (events.length === 0) {
-            container.innerHTML = '<p>No upcoming events</p>';
+            container.innerHTML = '<div class="empty-state"><p>No upcoming events</p></div>';
             return;
         }
         container.innerHTML = events.map(event => `
-            <div class="dashboard-item">
+            <div class="dashboard-item no-select">
                 <strong>${event.title}</strong>
                 <span>${new Date(event.start_time).toLocaleDateString()}</span>
             </div>
@@ -51,11 +51,11 @@
     function displayPendingTodos(todos) {
         const container = document.getElementById('pending-todos');
         if (todos.length === 0) {
-            container.innerHTML = '<p>No pending todos</p>';
+            container.innerHTML = '<div class="empty-state"><p>No pending todos</p></div>';
             return;
         }
         container.innerHTML = todos.map(todo => `
-            <div class="dashboard-item priority-${todo.priority}">
+            <div class="dashboard-item priority-${todo.priority} no-select">
                 <strong>${todo.title}</strong>
                 <span class="priority-badge">${todo.priority}</span>
             </div>
@@ -65,11 +65,11 @@
     function displayRecentNotes(notes) {
         const container = document.getElementById('recent-notes');
         if (notes.length === 0) {
-            container.innerHTML = '<p>No recent notes</p>';
+            container.innerHTML = '<div class="empty-state"><p>No recent notes</p></div>';
             return;
         }
         container.innerHTML = notes.map(note => `
-            <div class="dashboard-item">
+            <div class="dashboard-item no-select">
                 <strong>${note.title}</strong>
                 <span>${new Date(note.updated_at).toLocaleDateString()}</span>
             </div>

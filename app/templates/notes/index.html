@@ -17,16 +17,18 @@
 <script>
     // Load notes
     function loadNotes() {
+        const container = document.getElementById('notes-list');
+        container.innerHTML = '<div class="loading empty-state"><p>Loading notes...</p></div>';
+
         fetch('/notes/api/notes')
             .then(response => response.json())
             .then(notes => {
-                const container = document.getElementById('notes-list');
                 if (notes.length === 0) {
-                    container.innerHTML = '<p>No notes yet. Create your first note!</p>';
+                    container.innerHTML = '<div class="empty-state"><p>No notes yet. Tap "New Note" to create one!</p></div>';
                     return;
                 }
                 container.innerHTML = notes.map(note => `
-                    <div class="note-card" data-id="${note.id}">
+                    <div class="note-card no-select" data-id="${note.id}">
                         ${note.is_pinned ? '<span class="pinned-badge">Pinned</span>' : ''}
                         <h3>${note.title}</h3>
                         <p>${note.content ? note.content.substring(0, 150) + '...' : ''}</p>
@@ -36,6 +38,10 @@
                         </div>
                     </div>
                 `).join('');
+            })
+            .catch(error => {
+                container.innerHTML = '<div class="empty-state"><p>Error loading notes. Please try again.</p></div>';
+                console.error('Error loading notes:', error);
             });
     }
 
