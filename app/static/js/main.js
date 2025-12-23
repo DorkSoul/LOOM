@@ -17,18 +17,28 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isMobile()) {
             sidebar.classList.add('collapsed');
             mainContent.classList.add('expanded');
+            sidebarToggle.classList.add('active'); // Show X when collapsed
         } else {
             sidebar.classList.remove('collapsed');
             mainContent.classList.remove('expanded');
+            sidebarToggle.classList.remove('active'); // Show hamburger when expanded
         }
     }
 
     // Toggle sidebar
     function toggleSidebar() {
+        const isCollapsed = sidebar.classList.contains('collapsed');
+
         sidebar.classList.toggle('collapsed');
         sidebar.classList.toggle('active');
-        sidebarToggle.classList.toggle('active');
         mainContent.classList.toggle('expanded');
+
+        // X when collapsed (sidebar hidden), hamburger when expanded (sidebar visible)
+        if (isCollapsed) {
+            sidebarToggle.classList.remove('active'); // Expanding: show hamburger
+        } else {
+            sidebarToggle.classList.add('active'); // Collapsing: show X
+        }
 
         // Show/hide overlay on mobile
         if (isMobile()) {
