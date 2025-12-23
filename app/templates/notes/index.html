@@ -94,6 +94,99 @@
         margin-right: 0.5rem;
     }
 
+    /* View modal specific styling - make the note BE the modal */
+    #noteViewModal .modal-content {
+        max-width: 900px;
+        background-color: var(--background-color);
+    }
+
+    #noteViewModal .modal-body {
+        padding: 2rem;
+    }
+
+    #noteViewModal #viewNoteContent {
+        background: none;
+        border: none;
+        padding: 0;
+        max-height: none;
+        color: var(--text-color);
+    }
+
+    #noteViewModal #viewNoteContent h1,
+    #noteViewModal #viewNoteContent h2,
+    #noteViewModal #viewNoteContent h3,
+    #noteViewModal #viewNoteContent h4,
+    #noteViewModal #viewNoteContent h5,
+    #noteViewModal #viewNoteContent h6 {
+        color: var(--text-color);
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    #noteViewModal #viewNoteContent h1 { font-size: 2rem; }
+    #noteViewModal #viewNoteContent h2 { font-size: 1.5rem; }
+    #noteViewModal #viewNoteContent h3 { font-size: 1.25rem; }
+
+    #noteViewModal #viewNoteContent p {
+        margin: 1rem 0;
+        line-height: 1.7;
+    }
+
+    #noteViewModal #viewNoteContent code {
+        background-color: var(--card-background);
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+
+    #noteViewModal #viewNoteContent pre {
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 1rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+    }
+
+    #noteViewModal #viewNoteContent pre code {
+        background: none;
+        padding: 0;
+    }
+
+    #noteViewModal #viewNoteContent blockquote {
+        border-left: 4px solid var(--primary-color);
+        margin: 1rem 0;
+        padding-left: 1rem;
+        color: var(--text-muted);
+    }
+
+    #noteViewModal #viewNoteContent ul,
+    #noteViewModal #viewNoteContent ol {
+        padding-left: 2rem;
+        margin: 1rem 0;
+    }
+
+    #noteViewModal #viewNoteContent a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    #noteViewModal #viewNoteContent a:hover {
+        text-decoration: underline;
+    }
+
+    #noteViewModal #viewNoteContent hr {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 1.5rem 0;
+    }
+
+    #noteViewModal #viewNoteTitle {
+        font-size: 2rem;
+        margin: 0;
+    }
+
     /* Note card content preview with markdown */
     .note-card .note-content {
         max-height: 150px;
@@ -150,12 +243,14 @@
 <div class="modal" id="noteViewModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="viewNoteTitle"></h3>
+            <div>
+                <h3 id="viewNoteTitle"></h3>
+                <div id="viewNoteCategory" style="margin-top: 0.5rem;"></div>
+            </div>
             <button class="modal-close" id="closeViewModal">&times;</button>
         </div>
         <div class="modal-body">
-            <div id="viewNoteCategory" style="margin-bottom: 1rem;"></div>
-            <div id="viewNoteContent" class="markdown-preview"></div>
+            <div id="viewNoteContent"></div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-danger" id="deleteNoteBtn">Delete</button>
