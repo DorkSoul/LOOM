@@ -199,31 +199,27 @@
         width: 100%;
     }
 
-    /* Notes container - masonry layout */
+    /* Notes container - masonry-style grid */
     .notes-container {
         width: 100%;
     }
 
     #notes-list {
-        column-count: auto;
-        column-width: 300px;
-        column-gap: 1rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 300px);
+        grid-auto-rows: 20px;
+        gap: 1rem;
+        justify-content: start;
     }
 
     /* Note card styling */
     .note-card {
-        width: 100%;
+        width: 300px;
         min-height: 100px;
         max-height: 500px;
         overflow: hidden;
-        display: inline-block;
-        margin-bottom: 1rem;
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
-
-    .note-card > * {
-        display: block;
+        display: flex;
+        flex-direction: column;
     }
 
     .note-card-header {
@@ -685,6 +681,27 @@
         return `${day}-${month}-${year}`;
     }
 
+    // Calculate and set grid row spans for masonry layout
+    function resizeMasonryItems() {
+        const grid = document.getElementById('notes-list');
+        const items = grid.querySelectorAll('.note-card');
+        const rowHeight = 20; // matches grid-auto-rows
+        const rowGap = 16; // matches gap (1rem = 16px)
+
+        items.forEach(item => {
+            const contentHeight = item.getBoundingClientRect().height;
+            const rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
+            item.style.gridRowEnd = `span ${rowSpan}`;
+        });
+    }
+
+    // Resize on window resize
+    window.addEventListener('resize', () => {
+        if (document.getElementById('notes-list')) {
+            resizeMasonryItems();
+        }
+    });
+
     // Load notes
     function loadNotes() {
         const container = document.getElementById('notes-list');
@@ -739,6 +756,9 @@
                         openViewModal(noteId);
                     });
                 });
+
+                // Set dynamic grid row spans for masonry layout
+                resizeMasonryItems();
             })
             .catch(error => {
                 container.innerHTML = '<div class="empty-state"><p>Error loading notes. Please try again.</p></div>';
