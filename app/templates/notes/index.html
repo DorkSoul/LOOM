@@ -436,8 +436,65 @@
                 // Render markdown content
                 viewNoteContent.innerHTML = marked.parse(note.content || '*No content*');
 
+                // Make checkboxes interactive
+                setupInteractiveCheckboxes(viewNoteContent, note);
+
                 viewModal.classList.add('active');
             });
+    }
+
+    // Setup interactive checkboxes in rendered markdown
+    function setupInteractiveCheckboxes(container, note) {
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+
+        checkboxes.forEach((checkbox, index) => {
+            checkbox.style.cursor = 'pointer';
+
+            checkbox.addEventListener('change', function() {
+                // Update the markdown source
+                const lines = note.content.split('\n');
+                let checkboxCount = 0;
+
+                for (let i = 0; i < lines.length; i++) {
+                    // Match checkbox patterns: - [ ] or - [x]
+                    const checkboxMatch = lines[i].match(/^(\s*)-\s+\[([ x])\]/);
+
+                    if (checkboxMatch) {
+                        if (checkboxCount === index) {
+                            // Toggle this checkbox
+                            const isChecked = this.checked;
+                            lines[i] = lines[i].replace(/^(\s*)-\s+\[([ x])\]/, `$1- [${isChecked ? 'x' : ' '}]`);
+                            break;
+                        }
+                        checkboxCount++;
+                    }
+                }
+
+                // Update the note content
+                note.content = lines.join('\n');
+
+                // Save to backend
+                fetch(`/notes/api/notes/${note.id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        title: note.title,
+                        content: note.content,
+                        category: note.category,
+                        is_pinned: note.is_pinned
+                    })
+                })
+                .then(() => {
+                    // Optionally reload the notes list to show updated preview
+                    loadNotes();
+                })
+                .catch(error => {
+                    console.error('Error updating checkbox:', error);
+                    // Revert checkbox state on error
+                    this.checked = !this.checked;
+                });
+            });
+        });
     }
 
     function closeViewModal() {
@@ -459,6 +516,10 @@
                     noteContent.value = note.content || '';
                     noteCategory.value = note.category || '';
                     notePinned.checked = note.is_pinned;
+
+                    // Open modal after data is loaded
+                    modal.classList.add('active');
+                    noteTitle.focus();
                 });
         } else {
             // New note
@@ -467,10 +528,11 @@
             noteContent.value = '';
             noteCategory.value = '';
             notePinned.checked = false;
-        }
 
-        modal.classList.add('active');
-        noteTitle.focus();
+            // Open modal immediately for new notes
+            modal.classList.add('active');
+            noteTitle.focus();
+        }
     }
 
     function closeModal() {
@@ -548,7 +610,7 @@
                     }
 
                     return `
-                        <div class="note-card no-select" data-id="${note.id}">
+                        <div class="note-card no-select" data-id="${note.id}" data-note='${JSON.stringify(note).replace(/'/g, "&#39;")}'>
                             ${note.is_pinned ? '<span class="pinned-badge">Pinned</span>' : ''}
                             <h3>${escapeHtml(note.title)}</h3>
                             <div class="note-content">${preview}</div>
@@ -562,8 +624,20 @@
 
                 // Add click handlers to note cards - open view modal
                 document.querySelectorAll('.note-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        const noteId = card.getAttribute('data-id');
+                    const noteId = card.getAttribute('data-id');
+                    const noteData = JSON.parse(card.getAttribute('data-note'));
+                    const contentDiv = card.querySelector('.note-content');
+
+                    // Setup interactive checkboxes in preview
+                    setupInteractiveCheckboxes(contentDiv, noteData);
+
+                    // Open view modal when clicking card (but not checkboxes)
+                    card.addEventListener('click', (e) => {
+                        // Don't open modal if clicking a checkbox
+                        if (e.target.type === 'checkbox') {
+                            e.stopPropagation();
+                            return;
+                        }
                         openViewModal(noteId);
                     });
                 });
