@@ -691,19 +691,25 @@
         const rowGap = 16; // matches gap (1rem = 16px)
 
         items.forEach(item => {
-            // Reset the span first to get natural height
+            // Remove any height constraints temporarily to measure natural size
             item.style.gridRowEnd = 'auto';
+            item.style.height = 'auto';
+
+            // Force reflow
+            item.offsetHeight;
 
             // Get the actual content height
             const contentHeight = item.scrollHeight;
 
             // Calculate how many rows this item should span
+            // Formula: span = ceiling((height + gap) / (rowHeight + gap))
             const rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
 
-            // Set the grid row span
-            item.style.gridRowEnd = `span ${Math.max(rowSpan, 5)}`; // Minimum 5 rows (100px)
+            // Set the grid row span (no minimum to allow natural sizing)
+            item.style.gridRowEnd = `span ${rowSpan}`;
+            item.style.height = ''; // Clear the temporary height
 
-            console.log('Note height:', contentHeight, 'Row span:', rowSpan);
+            console.log('Note height:', contentHeight, 'px → Row span:', rowSpan, 'rows →', rowSpan * (rowHeight + rowGap) - rowGap, 'px total');
         });
     }
 
