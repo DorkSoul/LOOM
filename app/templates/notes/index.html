@@ -2,6 +2,100 @@
 
 {% block title %}Notes - LOOM{% endblock %}
 
+{% block extra_css %}
+<style>
+    .markdown-preview {
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 1rem;
+        min-height: 200px;
+        max-height: 400px;
+        overflow-y: auto;
+        color: var(--text-color);
+    }
+
+    .markdown-preview h1, .markdown-preview h2, .markdown-preview h3,
+    .markdown-preview h4, .markdown-preview h5, .markdown-preview h6 {
+        color: var(--text-color);
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .markdown-preview h1 { font-size: 2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.3rem; }
+    .markdown-preview h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; }
+    .markdown-preview h3 { font-size: 1.25rem; }
+
+    .markdown-preview code {
+        background-color: var(--card-background);
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+
+    .markdown-preview pre {
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 1rem;
+        overflow-x: auto;
+    }
+
+    .markdown-preview pre code {
+        background: none;
+        padding: 0;
+    }
+
+    .markdown-preview blockquote {
+        border-left: 4px solid var(--primary-color);
+        margin: 1rem 0;
+        padding-left: 1rem;
+        color: var(--text-muted);
+    }
+
+    .markdown-preview a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    .markdown-preview a:hover {
+        text-decoration: underline;
+    }
+
+    .markdown-preview ul, .markdown-preview ol {
+        padding-left: 2rem;
+        margin: 0.5rem 0;
+    }
+
+    .markdown-preview hr {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 1rem 0;
+    }
+
+    .markdown-preview table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1rem 0;
+    }
+
+    .markdown-preview th, .markdown-preview td {
+        border: 1px solid var(--border-color);
+        padding: 0.5rem;
+        text-align: left;
+    }
+
+    .markdown-preview th {
+        background-color: var(--card-background);
+    }
+
+    .markdown-preview input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="notes">
     <div class="page-header">
@@ -14,7 +108,212 @@
     </div>
 </div>
 
+<!-- Note Editor Modal -->
+<div class="modal" id="noteModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">New Note</h3>
+            <button class="modal-close" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="noteTitle">Title</label>
+                <input type="text" id="noteTitle" class="form-input" placeholder="Note title...">
+            </div>
+
+            <div class="form-group">
+                <label for="noteCategory">Category (optional)</label>
+                <input type="text" id="noteCategory" class="form-input" placeholder="e.g., Work, Personal, Ideas">
+            </div>
+
+            <div class="form-group">
+                <label>Content (Markdown supported)</label>
+                <!-- Markdown Toolbar -->
+                <div class="markdown-toolbar">
+                    <button type="button" class="md-btn" data-action="header" title="Header">H</button>
+                    <button type="button" class="md-btn" data-action="bold" title="Bold"><strong>B</strong></button>
+                    <button type="button" class="md-btn" data-action="italic" title="Italic"><em>I</em></button>
+                    <button type="button" class="md-btn" data-action="strikethrough" title="Strikethrough"><s>S</s></button>
+                    <button type="button" class="md-btn" data-action="code" title="Inline Code">&lt;/&gt;</button>
+                    <button type="button" class="md-btn" data-action="codeblock" title="Code Block">{ }</button>
+                    <button type="button" class="md-btn" data-action="link" title="Link">🔗</button>
+                    <button type="button" class="md-btn" data-action="list" title="Bullet List">•••</button>
+                    <button type="button" class="md-btn" data-action="numberedlist" title="Numbered List">1.2.3</button>
+                    <button type="button" class="md-btn" data-action="quote" title="Quote">❝❞</button>
+                    <button type="button" class="md-btn" data-action="hr" title="Horizontal Rule">─</button>
+                    <button type="button" class="md-btn" data-action="checkbox" title="Checkbox">☑</button>
+                </div>
+                <textarea id="noteContent" class="form-textarea" rows="15" placeholder="Write your note here... Markdown is supported!"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="notePinned">
+                    <span>Pin this note</span>
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+            <button class="btn btn-primary" id="saveNoteBtn">Save Note</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    // Modal and form elements
+    const modal = document.getElementById('noteModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const closeModalBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const saveNoteBtn = document.getElementById('saveNoteBtn');
+    const noteTitle = document.getElementById('noteTitle');
+    const noteContent = document.getElementById('noteContent');
+    const noteCategory = document.getElementById('noteCategory');
+    const notePinned = document.getElementById('notePinned');
+
+    let currentNoteId = null;
+
+    // Markdown helper functions
+    function insertMarkdown(action) {
+        const textarea = noteContent;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+        const beforeText = textarea.value.substring(0, start);
+        const afterText = textarea.value.substring(end);
+
+        let insertion = '';
+        let cursorOffset = 0;
+
+        switch(action) {
+            case 'header':
+                insertion = '# ' + (selectedText || 'Heading');
+                cursorOffset = selectedText ? insertion.length : 2;
+                break;
+            case 'bold':
+                insertion = '**' + (selectedText || 'bold text') + '**';
+                cursorOffset = selectedText ? insertion.length : 2;
+                break;
+            case 'italic':
+                insertion = '*' + (selectedText || 'italic text') + '*';
+                cursorOffset = selectedText ? insertion.length : 1;
+                break;
+            case 'strikethrough':
+                insertion = '~~' + (selectedText || 'strikethrough') + '~~';
+                cursorOffset = selectedText ? insertion.length : 2;
+                break;
+            case 'code':
+                insertion = '`' + (selectedText || 'code') + '`';
+                cursorOffset = selectedText ? insertion.length : 1;
+                break;
+            case 'codeblock':
+                insertion = '```\n\n```';
+                cursorOffset = 4;
+                break;
+            case 'link':
+                insertion = '[' + (selectedText || 'link text') + '](url)';
+                cursorOffset = selectedText ? insertion.length - 4 : 1;
+                break;
+            case 'list':
+                insertion = '- ' + (selectedText || 'list item');
+                cursorOffset = selectedText ? insertion.length : 2;
+                break;
+            case 'numberedlist':
+                insertion = '1. ' + (selectedText || 'list item');
+                cursorOffset = selectedText ? insertion.length : 3;
+                break;
+            case 'quote':
+                insertion = '> ' + (selectedText || 'quote');
+                cursorOffset = selectedText ? insertion.length : 2;
+                break;
+            case 'hr':
+                insertion = '\n---\n';
+                cursorOffset = insertion.length;
+                break;
+            case 'checkbox':
+                insertion = '- [ ] ' + (selectedText || 'task');
+                cursorOffset = selectedText ? insertion.length : 6;
+                break;
+        }
+
+        textarea.value = beforeText + insertion + afterText;
+        textarea.focus();
+        textarea.setSelectionRange(start + cursorOffset, start + cursorOffset);
+    }
+
+    // Markdown toolbar buttons
+    document.querySelectorAll('.md-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const action = btn.getAttribute('data-action');
+            insertMarkdown(action);
+        });
+    });
+
+    // Modal functions
+    function openModal(noteId = null) {
+        currentNoteId = noteId;
+
+        if (noteId) {
+            // Edit existing note
+            modalTitle.textContent = 'Edit Note';
+            fetch(`/notes/api/notes/${noteId}`)
+                .then(response => response.json())
+                .then(note => {
+                    noteTitle.value = note.title;
+                    noteContent.value = note.content || '';
+                    noteCategory.value = note.category || '';
+                    notePinned.checked = note.is_pinned;
+                });
+        } else {
+            // New note
+            modalTitle.textContent = 'New Note';
+            noteTitle.value = '';
+            noteContent.value = '';
+            noteCategory.value = '';
+            notePinned.checked = false;
+        }
+
+        modal.classList.add('active');
+        noteTitle.focus();
+    }
+
+    function closeModal() {
+        modal.classList.remove('active');
+        currentNoteId = null;
+    }
+
+    // Save note
+    function saveNote() {
+        const data = {
+            title: noteTitle.value || 'Untitled',
+            content: noteContent.value,
+            category: noteCategory.value || null,
+            is_pinned: notePinned.checked
+        };
+
+        const url = currentNoteId
+            ? `/notes/api/notes/${currentNoteId}`
+            : '/notes/api/notes';
+        const method = currentNoteId ? 'PUT' : 'POST';
+
+        fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(() => {
+            closeModal();
+            loadNotes();
+        })
+        .catch(error => {
+            console.error('Error saving note:', error);
+            alert('Error saving note. Please try again.');
+        });
+    }
+
     // Load notes
     function loadNotes() {
         const container = document.getElementById('notes-list');
@@ -24,20 +323,28 @@
             .then(response => response.json())
             .then(notes => {
                 if (notes.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><p>No notes yet. Tap "New Note" to create one!</p></div>';
+                    container.innerHTML = '<div class="empty-state"><p>No notes yet. Click "New Note" to create one!</p></div>';
                     return;
                 }
                 container.innerHTML = notes.map(note => `
                     <div class="note-card no-select" data-id="${note.id}">
                         ${note.is_pinned ? '<span class="pinned-badge">Pinned</span>' : ''}
-                        <h3>${note.title}</h3>
-                        <p>${note.content ? note.content.substring(0, 150) + '...' : ''}</p>
+                        <h3>${escapeHtml(note.title)}</h3>
+                        <p>${escapeHtml(note.content ? note.content.substring(0, 150) : '')}${note.content && note.content.length > 150 ? '...' : ''}</p>
                         <div class="note-meta">
-                            ${note.category ? `<span class="category">${note.category}</span>` : ''}
+                            ${note.category ? `<span class="category">${escapeHtml(note.category)}</span>` : ''}
                             <span class="date">${new Date(note.updated_at).toLocaleDateString()}</span>
                         </div>
                     </div>
                 `).join('');
+
+                // Add click handlers to note cards
+                document.querySelectorAll('.note-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const noteId = card.getAttribute('data-id');
+                        openModal(noteId);
+                    });
+                });
             })
             .catch(error => {
                 container.innerHTML = '<div class="empty-state"><p>Error loading notes. Please try again.</p></div>';
@@ -45,18 +352,44 @@
             });
     }
 
-    document.getElementById('new-note-btn').addEventListener('click', () => {
-        const title = prompt('Note title:');
-        if (title) {
-            fetch('/notes/api/notes', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({title: title})
-            })
-            .then(() => loadNotes());
+    // Utility function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Event listeners
+    document.getElementById('new-note-btn').addEventListener('click', () => openModal());
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    saveNoteBtn.addEventListener('click', saveNote);
+
+    // Close modal on outside click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
         }
     });
 
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    // Load notes on page load
     loadNotes();
+</script>
+
+<!-- Marked.js for markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+<script>
+    // Configure marked
+    marked.setOptions({
+        breaks: true,
+        gfm: true
+    });
 </script>
 {% endblock %}
