@@ -187,12 +187,56 @@
         margin: 0;
     }
 
+    /* Notes container - grid layout */
+    .notes-container {
+        width: 100%;
+    }
+
+    #notes-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 300px);
+        gap: 1rem;
+        justify-content: start;
+    }
+
+    /* Note card styling */
+    .note-card {
+        width: 300px;
+        min-height: 100px;
+        max-height: 500px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .note-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .note-card-header h3 {
+        flex: 1;
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .note-card-date {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        margin-top: 0.25rem;
+    }
+
     /* Note card content preview with markdown */
     .note-card .note-content {
-        max-height: 150px;
+        flex: 1;
         overflow: hidden;
         position: relative;
         color: var(--text-muted);
+        margin-bottom: 0.5rem;
     }
 
     .note-card .note-content p {
@@ -223,6 +267,10 @@
     .note-card .note-content strong {
         color: var(--text-color);
         font-weight: 600;
+    }
+
+    .note-card .note-meta {
+        margin-top: auto;
     }
 </style>
 {% endblock %}
@@ -610,6 +658,16 @@
         }
     }
 
+    // Format date as DD-MMM-YYYY
+    function formatNoteDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+
     // Load notes
     function loadNotes() {
         const container = document.getElementById('notes-list');
@@ -633,11 +691,13 @@
                     return `
                         <div class="note-card no-select" data-id="${note.id}" data-note='${JSON.stringify(note).replace(/'/g, "&#39;")}'>
                             ${note.is_pinned ? '<span class="pinned-badge">Pinned</span>' : ''}
-                            <h3>${escapeHtml(note.title)}</h3>
+                            <div class="note-card-header">
+                                <h3>${escapeHtml(note.title)}</h3>
+                                <div class="note-card-date">${formatNoteDate(note.created_at)}</div>
+                            </div>
                             <div class="note-content">${preview}</div>
                             <div class="note-meta">
                                 ${note.category ? `<span class="category">${escapeHtml(note.category)}</span>` : ''}
-                                <span class="date">${new Date(note.updated_at).toLocaleDateString()}</span>
                             </div>
                         </div>
                     `;
