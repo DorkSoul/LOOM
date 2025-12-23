@@ -93,6 +93,44 @@
     .markdown-preview input[type="checkbox"] {
         margin-right: 0.5rem;
     }
+
+    /* Note card content preview with markdown */
+    .note-card .note-content {
+        max-height: 150px;
+        overflow: hidden;
+        position: relative;
+        color: var(--text-muted);
+    }
+
+    .note-card .note-content p {
+        margin: 0.5rem 0;
+    }
+
+    .note-card .note-content h1,
+    .note-card .note-content h2,
+    .note-card .note-content h3 {
+        font-size: 1rem;
+        margin: 0.5rem 0;
+        color: var(--text-color);
+    }
+
+    .note-card .note-content code {
+        background-color: var(--background-color);
+        padding: 0.1rem 0.3rem;
+        border-radius: 3px;
+        font-size: 0.85rem;
+    }
+
+    .note-card .note-content ul,
+    .note-card .note-content ol {
+        margin: 0.25rem 0;
+        padding-left: 1.5rem;
+    }
+
+    .note-card .note-content strong {
+        color: var(--text-color);
+        font-weight: 600;
+    }
 </style>
 {% endblock %}
 
@@ -105,6 +143,24 @@
 
     <div class="notes-container">
         <div id="notes-list"></div>
+    </div>
+</div>
+
+<!-- Note View Modal -->
+<div class="modal" id="noteViewModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="viewNoteTitle"></h3>
+            <button class="modal-close" id="closeViewModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="viewNoteCategory" style="margin-bottom: 1rem;"></div>
+            <div id="viewNoteContent" class="markdown-preview"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" id="deleteNoteBtn">Delete</button>
+            <button class="btn btn-primary" id="editNoteBtn">Edit</button>
+        </div>
     </div>
 </div>
 
@@ -161,7 +217,16 @@
 </div>
 
 <script>
-    // Modal and form elements
+    // View modal elements
+    const viewModal = document.getElementById('noteViewModal');
+    const closeViewModalBtn = document.getElementById('closeViewModal');
+    const viewNoteTitle = document.getElementById('viewNoteTitle');
+    const viewNoteCategory = document.getElementById('viewNoteCategory');
+    const viewNoteContent = document.getElementById('viewNoteContent');
+    const editNoteBtn = document.getElementById('editNoteBtn');
+    const deleteNoteBtn = document.getElementById('deleteNoteBtn');
+
+    // Editor modal and form elements
     const modal = document.getElementById('noteModal');
     const modalTitle = document.getElementById('modalTitle');
     const closeModalBtn = document.getElementById('closeModal');
@@ -173,6 +238,7 @@
     const notePinned = document.getElementById('notePinned');
 
     let currentNoteId = null;
+    let currentViewNoteId = null;
 
     // Markdown helper functions
     function insertMarkdown(action) {
@@ -256,7 +322,35 @@
         });
     });
 
-    // Modal functions
+    // View modal functions
+    function openViewModal(noteId) {
+        currentViewNoteId = noteId;
+
+        fetch(`/notes/api/notes/${noteId}`)
+            .then(response => response.json())
+            .then(note => {
+                viewNoteTitle.textContent = note.title;
+
+                // Show category if exists
+                if (note.category) {
+                    viewNoteCategory.innerHTML = `<span class="category">${escapeHtml(note.category)}</span>`;
+                } else {
+                    viewNoteCategory.innerHTML = '';
+                }
+
+                // Render markdown content
+                viewNoteContent.innerHTML = marked.parse(note.content || '*No content*');
+
+                viewModal.classList.add('active');
+            });
+    }
+
+    function closeViewModal() {
+        viewModal.classList.remove('active');
+        currentViewNoteId = null;
+    }
+
+    // Editor modal functions
     function openModal(noteId = null) {
         currentNoteId = noteId;
 
@@ -319,6 +413,25 @@
         });
     }
 
+    // Delete note
+    function deleteNote() {
+        if (!currentViewNoteId) return;
+
+        if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+            fetch(`/notes/api/notes/${currentViewNoteId}`, {
+                method: 'DELETE'
+            })
+            .then(() => {
+                closeViewModal();
+                loadNotes();
+            })
+            .catch(error => {
+                console.error('Error deleting note:', error);
+                alert('Error deleting note. Please try again.');
+            });
+        }
+    }
+
     // Load notes
     function loadNotes() {
         const container = document.getElementById('notes-list');
@@ -332,23 +445,18 @@
                     return;
                 }
                 container.innerHTML = notes.map(note => {
-                    // Render markdown content for preview
+                    // Render markdown content for preview with formatting
                     let preview = '';
                     if (note.content) {
                         const rendered = marked.parse(note.content);
-                        // Strip HTML tags for preview and limit length
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = rendered;
-                        const textContent = tempDiv.textContent || tempDiv.innerText || '';
-                        preview = textContent.substring(0, 150);
-                        if (textContent.length > 150) preview += '...';
+                        preview = rendered;
                     }
 
                     return `
                         <div class="note-card no-select" data-id="${note.id}">
                             ${note.is_pinned ? '<span class="pinned-badge">Pinned</span>' : ''}
                             <h3>${escapeHtml(note.title)}</h3>
-                            <p>${escapeHtml(preview)}</p>
+                            <div class="note-content">${preview}</div>
                             <div class="note-meta">
                                 ${note.category ? `<span class="category">${escapeHtml(note.category)}</span>` : ''}
                                 <span class="date">${new Date(note.updated_at).toLocaleDateString()}</span>
@@ -357,11 +465,11 @@
                     `;
                 }).join('');
 
-                // Add click handlers to note cards
+                // Add click handlers to note cards - open view modal
                 document.querySelectorAll('.note-card').forEach(card => {
                     card.addEventListener('click', () => {
                         const noteId = card.getAttribute('data-id');
-                        openModal(noteId);
+                        openViewModal(noteId);
                     });
                 });
             })
@@ -378,23 +486,43 @@
         return div.innerHTML;
     }
 
-    // Event listeners
+    // Event listeners for view modal
+    closeViewModalBtn.addEventListener('click', closeViewModal);
+    editNoteBtn.addEventListener('click', () => {
+        if (currentViewNoteId) {
+            closeViewModal();
+            openModal(currentViewNoteId);
+        }
+    });
+    deleteNoteBtn.addEventListener('click', deleteNote);
+
+    // Event listeners for editor modal
     document.getElementById('new-note-btn').addEventListener('click', () => openModal());
     closeModalBtn.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
     saveNoteBtn.addEventListener('click', saveNote);
 
-    // Close modal on outside click
+    // Close modals on outside click
+    viewModal.addEventListener('click', (e) => {
+        if (e.target === viewModal) {
+            closeViewModal();
+        }
+    });
+
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeModal();
         }
     });
 
-    // Close modal on Escape key
+    // Close modals on Escape key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            closeModal();
+        if (e.key === 'Escape') {
+            if (viewModal.classList.contains('active')) {
+                closeViewModal();
+            } else if (modal.classList.contains('active')) {
+                closeModal();
+            }
         }
     });
 

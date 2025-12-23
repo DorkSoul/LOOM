@@ -520,6 +520,15 @@ body {
     background-color: var(--background-color);
 }
 
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
 /* Markdown Toolbar */
 .markdown-toolbar {
     display: flex;
