@@ -188,23 +188,23 @@
 
         switch(action) {
             case 'header':
-                insertion = '# ' + (selectedText || 'Heading');
-                cursorOffset = selectedText ? insertion.length : 2;
+                insertion = selectedText ? '# ' + selectedText : '# ';
+                cursorOffset = insertion.length;
                 break;
             case 'bold':
-                insertion = '**' + (selectedText || 'bold text') + '**';
+                insertion = selectedText ? '**' + selectedText + '**' : '****';
                 cursorOffset = selectedText ? insertion.length : 2;
                 break;
             case 'italic':
-                insertion = '*' + (selectedText || 'italic text') + '*';
+                insertion = selectedText ? '*' + selectedText + '*' : '**';
                 cursorOffset = selectedText ? insertion.length : 1;
                 break;
             case 'strikethrough':
-                insertion = '~~' + (selectedText || 'strikethrough') + '~~';
+                insertion = selectedText ? '~~' + selectedText + '~~' : '~~~~';
                 cursorOffset = selectedText ? insertion.length : 2;
                 break;
             case 'code':
-                insertion = '`' + (selectedText || 'code') + '`';
+                insertion = selectedText ? '`' + selectedText + '`' : '``';
                 cursorOffset = selectedText ? insertion.length : 1;
                 break;
             case 'codeblock':
@@ -212,28 +212,33 @@
                 cursorOffset = 4;
                 break;
             case 'link':
-                insertion = '[' + (selectedText || 'link text') + '](url)';
+                insertion = selectedText ? '[' + selectedText + '](url)' : '[](url)';
                 cursorOffset = selectedText ? insertion.length - 4 : 1;
                 break;
             case 'list':
-                insertion = '- ' + (selectedText || 'list item');
-                cursorOffset = selectedText ? insertion.length : 2;
+                insertion = selectedText ? '- ' + selectedText : '- ';
+                cursorOffset = insertion.length;
                 break;
             case 'numberedlist':
-                insertion = '1. ' + (selectedText || 'list item');
-                cursorOffset = selectedText ? insertion.length : 3;
+                // Smart numbering: detect the number from the previous line
+                const lines = beforeText.split('\n');
+                const lastLine = lines[lines.length - 1];
+                const numberMatch = lastLine.match(/^(\d+)\.\s/);
+                const nextNumber = numberMatch ? parseInt(numberMatch[1]) + 1 : 1;
+                insertion = selectedText ? `${nextNumber}. ` + selectedText : `${nextNumber}. `;
+                cursorOffset = insertion.length;
                 break;
             case 'quote':
-                insertion = '> ' + (selectedText || 'quote');
-                cursorOffset = selectedText ? insertion.length : 2;
+                insertion = selectedText ? '> ' + selectedText : '> ';
+                cursorOffset = insertion.length;
                 break;
             case 'hr':
                 insertion = '\n---\n';
                 cursorOffset = insertion.length;
                 break;
             case 'checkbox':
-                insertion = '- [ ] ' + (selectedText || 'task');
-                cursorOffset = selectedText ? insertion.length : 6;
+                insertion = selectedText ? '- [ ] ' + selectedText : '- [ ] ';
+                cursorOffset = insertion.length;
                 break;
         }
 
@@ -326,17 +331,31 @@
                     container.innerHTML = '<div class="empty-state"><p>No notes yet. Click "New Note" to create one!</p></div>';
                     return;
                 }
-                container.innerHTML = notes.map(note => `
-                    <div class="note-card no-select" data-id="${note.id}">
-                        ${note.is_pinned ? '<span class="pinned-badge">Pinned</span>' : ''}
-                        <h3>${escapeHtml(note.title)}</h3>
-                        <p>${escapeHtml(note.content ? note.content.substring(0, 150) : '')}${note.content && note.content.length > 150 ? '...' : ''}</p>
-                        <div class="note-meta">
-                            ${note.category ? `<span class="category">${escapeHtml(note.category)}</span>` : ''}
-                            <span class="date">${new Date(note.updated_at).toLocaleDateString()}</span>
+                container.innerHTML = notes.map(note => {
+                    // Render markdown content for preview
+                    let preview = '';
+                    if (note.content) {
+                        const rendered = marked.parse(note.content);
+                        // Strip HTML tags for preview and limit length
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = rendered;
+                        const textContent = tempDiv.textContent || tempDiv.innerText || '';
+                        preview = textContent.substring(0, 150);
+                        if (textContent.length > 150) preview += '...';
+                    }
+
+                    return `
+                        <div class="note-card no-select" data-id="${note.id}">
+                            ${note.is_pinned ? '<span class="pinned-badge">Pinned</span>' : ''}
+                            <h3>${escapeHtml(note.title)}</h3>
+                            <p>${escapeHtml(preview)}</p>
+                            <div class="note-meta">
+                                ${note.category ? `<span class="category">${escapeHtml(note.category)}</span>` : ''}
+                                <span class="date">${new Date(note.updated_at).toLocaleDateString()}</span>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 // Add click handlers to note cards
                 document.querySelectorAll('.note-card').forEach(card => {
