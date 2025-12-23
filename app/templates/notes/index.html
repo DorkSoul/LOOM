@@ -187,10 +187,16 @@
         margin: 0;
     }
 
-    /* Notes page - use full width */
-    .notes .container {
-        max-width: none;
-        padding: 0 1rem;
+    /* Notes page - use full width, remove container margins */
+    .container {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 1rem !important;
+        width: 100% !important;
+    }
+
+    .notes {
+        width: 100%;
     }
 
     /* Notes container - grid layout */
