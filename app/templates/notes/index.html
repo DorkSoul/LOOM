@@ -450,6 +450,8 @@
         const checkboxes = container.querySelectorAll('input[type="checkbox"]');
 
         checkboxes.forEach((checkbox, index) => {
+            // Enable checkbox (marked.js disables them by default)
+            checkbox.disabled = false;
             checkbox.style.cursor = 'pointer';
 
             checkbox.addEventListener('change', function() {
