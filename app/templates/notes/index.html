@@ -684,14 +684,26 @@
     // Calculate and set grid row spans for masonry layout
     function resizeMasonryItems() {
         const grid = document.getElementById('notes-list');
+        if (!grid) return;
+
         const items = grid.querySelectorAll('.note-card');
         const rowHeight = 20; // matches grid-auto-rows
         const rowGap = 16; // matches gap (1rem = 16px)
 
         items.forEach(item => {
-            const contentHeight = item.getBoundingClientRect().height;
+            // Reset the span first to get natural height
+            item.style.gridRowEnd = 'auto';
+
+            // Get the actual content height
+            const contentHeight = item.scrollHeight;
+
+            // Calculate how many rows this item should span
             const rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
-            item.style.gridRowEnd = `span ${rowSpan}`;
+
+            // Set the grid row span
+            item.style.gridRowEnd = `span ${Math.max(rowSpan, 5)}`; // Minimum 5 rows (100px)
+
+            console.log('Note height:', contentHeight, 'Row span:', rowSpan);
         });
     }
 
@@ -757,8 +769,12 @@
                     });
                 });
 
-                // Set dynamic grid row spans for masonry layout
-                resizeMasonryItems();
+                // Set dynamic grid row spans for masonry layout after content renders
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        resizeMasonryItems();
+                    });
+                });
             })
             .catch(error => {
                 container.innerHTML = '<div class="empty-state"><p>Error loading notes. Please try again.</p></div>';
