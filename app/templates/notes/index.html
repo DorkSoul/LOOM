@@ -420,10 +420,12 @@
     // View modal functions
     function openViewModal(noteId) {
         currentViewNoteId = noteId;
+        console.log('Opening view modal for note ID:', noteId);
 
         fetch(`/notes/api/notes/${noteId}`)
             .then(response => response.json())
             .then(note => {
+                console.log('Loaded note for viewing:', note);
                 viewNoteTitle.textContent = note.title;
 
                 // Show category if exists
@@ -509,17 +511,34 @@
         if (noteId) {
             // Edit existing note
             modalTitle.textContent = 'Edit Note';
+
+            // Clear form first
+            noteTitle.value = '';
+            noteContent.value = '';
+            noteCategory.value = '';
+            notePinned.checked = false;
+
             fetch(`/notes/api/notes/${noteId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch note');
+                    }
+                    return response.json();
+                })
                 .then(note => {
-                    noteTitle.value = note.title;
+                    console.log('Loaded note for editing:', note);
+                    noteTitle.value = note.title || '';
                     noteContent.value = note.content || '';
                     noteCategory.value = note.category || '';
-                    notePinned.checked = note.is_pinned;
+                    notePinned.checked = note.is_pinned || false;
 
                     // Open modal after data is loaded
                     modal.classList.add('active');
                     noteTitle.focus();
+                })
+                .catch(error => {
+                    console.error('Error loading note for editing:', error);
+                    alert('Error loading note. Please try again.');
                 });
         } else {
             // New note
@@ -658,9 +677,12 @@
     // Event listeners for view modal
     closeViewModalBtn.addEventListener('click', closeViewModal);
     editNoteBtn.addEventListener('click', () => {
+        console.log('Edit button clicked, currentViewNoteId:', currentViewNoteId);
         if (currentViewNoteId) {
             closeViewModal();
             openModal(currentViewNoteId);
+        } else {
+            console.error('No currentViewNoteId set!');
         }
     });
     deleteNoteBtn.addEventListener('click', deleteNote);
