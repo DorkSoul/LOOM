@@ -679,8 +679,10 @@
     editNoteBtn.addEventListener('click', () => {
         console.log('Edit button clicked, currentViewNoteId:', currentViewNoteId);
         if (currentViewNoteId) {
+            // Save the note ID before closing the modal (which sets currentViewNoteId to null)
+            const noteIdToEdit = currentViewNoteId;
             closeViewModal();
-            openModal(currentViewNoteId);
+            openModal(noteIdToEdit);
         } else {
             console.error('No currentViewNoteId set!');
         }
