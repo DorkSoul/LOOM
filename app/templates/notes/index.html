@@ -206,7 +206,7 @@
 
     #notes-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, 300px);
+        grid-template-columns: repeat(auto-fill, minmax(300px, 400px));
         grid-auto-rows: 20px;
         gap: 1rem;
         justify-content: start;
@@ -214,7 +214,7 @@
 
     /* Note card styling */
     .note-card {
-        width: 300px;
+        width: 100%;
         min-height: 100px;
         max-height: 500px;
         overflow: hidden;
