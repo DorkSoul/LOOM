@@ -205,17 +205,14 @@
     }
 
     #notes-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 400px));
-        grid-auto-rows: 20px;
+        display: flex;
+        flex-wrap: wrap;
         gap: 1rem;
     }
 
     /* Note card styling */
     .note-card {
-        width: 100%;
-        min-height: 100px;
-        max-height: 500px;
+        width: 300px;
         overflow: hidden;
     }
 
@@ -677,44 +674,6 @@
         return `${day}-${month}-${year}`;
     }
 
-    // Calculate and set grid row spans for masonry layout
-    function resizeMasonryItems() {
-        const grid = document.getElementById('notes-list');
-        if (!grid) return;
-
-        const items = grid.querySelectorAll('.note-card');
-        const rowHeight = 20; // matches grid-auto-rows
-        const rowGap = 16; // matches gap (1rem = 16px)
-
-        items.forEach(item => {
-            // Remove any height constraints temporarily to measure natural size
-            item.style.gridRowEnd = 'auto';
-            item.style.height = 'auto';
-
-            // Force reflow
-            item.offsetHeight;
-
-            // Get the actual content height
-            const contentHeight = item.scrollHeight;
-
-            // Calculate how many rows this item should span
-            // Formula: span = ceiling((height + gap) / (rowHeight + gap))
-            const rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
-
-            // Set the grid row span (no minimum to allow natural sizing)
-            item.style.gridRowEnd = `span ${rowSpan}`;
-            item.style.height = ''; // Clear the temporary height
-
-            console.log('Note height:', contentHeight, 'px → Row span:', rowSpan, 'rows →', rowSpan * (rowHeight + rowGap) - rowGap, 'px total');
-        });
-    }
-
-    // Resize on window resize
-    window.addEventListener('resize', () => {
-        if (document.getElementById('notes-list')) {
-            resizeMasonryItems();
-        }
-    });
 
     // Load notes
     function loadNotes() {
@@ -768,13 +727,6 @@
                             return;
                         }
                         openViewModal(noteId);
-                    });
-                });
-
-                // Set dynamic grid row spans for masonry layout after content renders
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        resizeMasonryItems();
                     });
                 });
             })
