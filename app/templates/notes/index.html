@@ -684,17 +684,20 @@
 
         const items = grid.querySelectorAll('.note-card');
         const rowHeight = 10; // matches grid-auto-rows
-        const rowGap = 16; // matches gap (1rem = 16px)
 
         items.forEach(item => {
             // Reset to measure natural height
             item.style.gridRowEnd = 'auto';
 
+            // Force a reflow to get accurate height
+            item.offsetHeight;
+
             // Get the actual content height
             const contentHeight = item.getBoundingClientRect().height;
 
             // Calculate how many rows this item should span
-            const rowSpan = Math.ceil((contentHeight + rowGap) / (rowHeight + rowGap));
+            // Simple: divide height by row height and round up
+            const rowSpan = Math.ceil(contentHeight / rowHeight);
 
             // Set the grid row span
             item.style.gridRowEnd = `span ${rowSpan}`;
