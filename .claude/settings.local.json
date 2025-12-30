@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(powershell -Command \"\\(Get-Content ''C:\\\\Users\\\\lukeh\\\\dev\\\\LOOM\\\\app\\\\static\\\\js\\\\notes.js'' | Measure-Object -Line\\).Lines\")",
+      "Bash(del \"C:\\\\Users\\\\lukeh\\\\dev\\\\LOOM\\\\app\\\\static\\\\js\\\\notes.js\")",
+      "Bash(powershell -Command \"Remove-Item ''C:\\\\Users\\\\lukeh\\\\dev\\\\LOOM\\\\app\\\\static\\\\js\\\\notes.js'' -Force\")"
     ]
   }
 }
