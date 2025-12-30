@@ -4,13 +4,43 @@
 
 {% block content %}
 <div class="notes">
-    <h2>Notes</h2>
+    <div class="page-header">
+        <h2>Notes</h2>
+        <button class="btn btn-primary" id="newNoteBtn">+ New Note</button>
+    </div>
     <div id="notes-list" class="notes-grid"></div>
+</div>
+
+<!-- Note Modal -->
+<div id="noteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">New Note</h3>
+            <button class="modal-close" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="noteId">
+            <input type="text" id="noteTitle" class="form-input" placeholder="Title" required>
+            <textarea id="noteContent" class="form-textarea" placeholder="Content (supports markdown)" rows="12"></textarea>
+            <div class="form-row">
+                <input type="text" id="noteCategory" class="form-input" placeholder="Category (optional)">
+                <input type="text" id="noteTags" class="form-input" placeholder="Tags (comma separated)">
+            </div>
+            <label class="checkbox-label">
+                <input type="checkbox" id="notePinned"> Pin this note
+            </label>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+            <button class="btn btn-primary" id="saveNoteBtn">Save</button>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="{{ url_for('static', filename='js/notes.js') }}"></script>
 {% endblock %}

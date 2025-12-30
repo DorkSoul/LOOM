@@ -288,11 +288,49 @@ body {
     line-height: 1.3;
 }
 
-.note-card p {
+.note-card p,
+.note-preview {
     color: var(--text-muted);
     line-height: 1.5;
     font-size: 0.9rem;
     margin: 0;
+}
+
+.note-preview {
+    overflow: hidden;
+}
+
+.note-preview h1,
+.note-preview h2,
+.note-preview h3 {
+    font-size: 0.95rem;
+    margin: 0.5rem 0 0.25rem 0;
+    color: var(--text-color);
+}
+
+.note-preview p {
+    margin: 0.25rem 0;
+}
+
+.note-preview ul,
+.note-preview ol {
+    margin: 0.25rem 0;
+    padding-left: 1.5rem;
+}
+
+.note-preview code {
+    background: var(--secondary-color);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+}
+
+.note-preview pre {
+    background: var(--secondary-color);
+    padding: 0.5rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 0.5rem 0;
 }
 
 .note-meta {
@@ -530,6 +568,16 @@ body {
     gap: 0.5rem;
     cursor: pointer;
     user-select: none;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-row .form-input {
+    flex: 1;
 }
 
 .checkbox-label input[type="checkbox"] {

@@ -7,7 +7,21 @@ let masonryGrid = null;
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
+    initEventListeners();
 });
+
+// Initialize event listeners
+function initEventListeners() {
+    document.getElementById('newNoteBtn')?.addEventListener('click', openNewNoteModal);
+    document.getElementById('closeModal')?.addEventListener('click', closeModal);
+    document.getElementById('cancelBtn')?.addEventListener('click', closeModal);
+    document.getElementById('saveNoteBtn')?.addEventListener('click', saveNote);
+
+    // Close modal on outside click
+    document.getElementById('noteModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'noteModal') closeModal();
+    });
+}
 
 // Load notes from API
 async function loadNotes() {
@@ -44,6 +58,7 @@ function renderNotes(notes) {
 function createNoteCard(note) {
     const card = document.createElement('div');
     card.className = 'note-card';
+    card.dataset.noteId = note.id;
 
     // Random height between 150-600px (weighted toward smaller)
     const heights = [150, 200, 250, 300, 350, 400, 500, 600];
@@ -51,13 +66,19 @@ function createNoteCard(note) {
     const height = getWeightedRandom(heights, weights);
     card.style.height = `${height}px`;
 
+    // Convert markdown to HTML for display
+    const contentHtml = note.content ? renderMarkdown(note.content.substring(0, 200)) : '';
+
     // Build card content
     card.innerHTML = `
         ${note.is_pinned ? '<span class="pinned-badge">📌</span>' : ''}
         <h3>${escapeHtml(note.title)}</h3>
-        <p>${escapeHtml(note.content || '').substring(0, 200)}</p>
+        <div class="note-preview">${contentHtml}</div>
         ${renderMeta(note)}
     `;
+
+    // Click to open note
+    card.addEventListener('click', () => openNote(note.id));
 
     return card;
 }
@@ -122,6 +143,91 @@ function initMasonry() {
         imagesLoaded(grid, () => {
             masonryGrid.layout();
         });
+    }
+}
+
+// Render markdown to HTML
+function renderMarkdown(markdown) {
+    if (typeof marked === 'undefined') {
+        return escapeHtml(markdown);
+    }
+    return marked.parse(markdown, { breaks: true });
+}
+
+// Open new note modal
+function openNewNoteModal() {
+    document.getElementById('modalTitle').textContent = 'New Note';
+    document.getElementById('noteId').value = '';
+    document.getElementById('noteTitle').value = '';
+    document.getElementById('noteContent').value = '';
+    document.getElementById('noteCategory').value = '';
+    document.getElementById('noteTags').value = '';
+    document.getElementById('notePinned').checked = false;
+    document.getElementById('noteModal').classList.add('active');
+}
+
+// Open existing note
+async function openNote(noteId) {
+    try {
+        const note = await window.loom.apiCall(`/notes/api/notes/${noteId}`, 'GET');
+
+        document.getElementById('modalTitle').textContent = 'Edit Note';
+        document.getElementById('noteId').value = note.id;
+        document.getElementById('noteTitle').value = note.title || '';
+        document.getElementById('noteContent').value = note.content || '';
+        document.getElementById('noteCategory').value = note.category || '';
+        document.getElementById('noteTags').value = Array.isArray(note.tags) ? note.tags.join(', ') : (note.tags || '');
+        document.getElementById('notePinned').checked = note.is_pinned || false;
+        document.getElementById('noteModal').classList.add('active');
+    } catch (error) {
+        console.error('Error loading note:', error);
+        window.loom.showNotification('Failed to load note');
+    }
+}
+
+// Close modal
+function closeModal() {
+    document.getElementById('noteModal').classList.remove('active');
+}
+
+// Save note (create or update)
+async function saveNote() {
+    const noteId = document.getElementById('noteId').value;
+    const title = document.getElementById('noteTitle').value.trim();
+    const content = document.getElementById('noteContent').value;
+    const category = document.getElementById('noteCategory').value.trim();
+    const tagsInput = document.getElementById('noteTags').value.trim();
+    const isPinned = document.getElementById('notePinned').checked;
+
+    if (!title) {
+        window.loom.showNotification('Please enter a title');
+        return;
+    }
+
+    const noteData = {
+        title,
+        content,
+        category: category || null,
+        tags: tagsInput || null,
+        is_pinned: isPinned
+    };
+
+    try {
+        if (noteId) {
+            // Update existing note
+            await window.loom.apiCall(`/notes/api/notes/${noteId}`, 'PUT', noteData);
+            window.loom.showNotification('Note updated');
+        } else {
+            // Create new note
+            await window.loom.apiCall('/notes/api/notes', 'POST', noteData);
+            window.loom.showNotification('Note created');
+        }
+
+        closeModal();
+        await loadNotes();
+    } catch (error) {
+        console.error('Error saving note:', error);
+        window.loom.showNotification('Failed to save note');
     }
 }
 
