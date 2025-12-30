@@ -60,14 +60,10 @@ function createNoteCard(note) {
     card.className = 'note-card';
     card.dataset.noteId = note.id;
 
-    // Random height between 150-600px (weighted toward smaller)
-    const heights = [150, 200, 250, 300, 350, 400, 500, 600];
-    const weights = [25, 20, 20, 15, 10, 5, 3, 2]; // Prefer smaller notes
-    const height = getWeightedRandom(heights, weights);
-    card.style.height = `${height}px`;
-
-    // Convert markdown to HTML for display
-    const contentHtml = note.content ? renderMarkdown(note.content.substring(0, 200)) : '';
+    // Convert markdown to HTML for display (limit preview length)
+    const contentLength = (note.content || '').length;
+    const previewLength = Math.min(contentLength, 400);
+    const contentHtml = note.content ? renderMarkdown(note.content.substring(0, previewLength)) : '';
 
     // Build card content
     card.innerHTML = `
@@ -101,19 +97,6 @@ function renderMeta(note) {
 
     meta += '</div>';
     return meta;
-}
-
-// Get weighted random value
-function getWeightedRandom(values, weights) {
-    const total = weights.reduce((a, b) => a + b, 0);
-    let random = Math.random() * total;
-
-    for (let i = 0; i < values.length; i++) {
-        random -= weights[i];
-        if (random <= 0) return values[i];
-    }
-
-    return values[0];
 }
 
 // Initialize Masonry layout
