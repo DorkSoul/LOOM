@@ -195,7 +195,17 @@ function formatNoteContent(content) {
 // Render tags
 function renderTags(tagsString) {
     if (!tagsString) return '';
-    const tags = tagsString.split(',').map(t => t.trim()).filter(t => t);
+
+    // Handle if tags is already an array or convert string to array
+    let tags;
+    if (Array.isArray(tagsString)) {
+        tags = tagsString;
+    } else if (typeof tagsString === 'string') {
+        tags = tagsString.split(',').map(t => t.trim()).filter(t => t);
+    } else {
+        return '';
+    }
+
     return tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('');
 }
 
