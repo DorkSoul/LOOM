@@ -254,18 +254,65 @@ body {
 }
 
 /* Notes */
-.notes-container {
-    width: 100%;
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
+.notes-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.notes-controls .form-input {
+    flex: 1;
+}
+
+.notes-controls select {
+    flex: 0 0 200px;
+}
+
+/* Masonry Layout Container */
+.notes-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Sizer element for masonry column width */
+.note-card-sizer {
+    width: calc(33.333% - 11px);
+}
+
+/* Note Card - Masonry Item */
 .note-card {
+    width: calc(33.333% - 11px);
     background: var(--card-background);
-    padding: 1.5rem;
+    padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     border: 1px solid var(--border-color);
     cursor: pointer;
     transition: all 0.2s;
+    margin-bottom: 16px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Variable height for different note sizes */
+.note-card {
+    min-height: 150px;
+    max-height: var(--note-height, 300px);
+    height: var(--note-height, 300px);
+}
+
+.note-content-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .note-card:hover {
@@ -275,22 +322,61 @@ body {
 }
 
 .note-card h3 {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     color: var(--text-color);
+    font-size: 1.1rem;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.note-content {
+    flex: 1;
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-size: 0.9rem;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
 }
 
 .note-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 1rem;
-    font-size: 0.875rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
 }
 
-.note-card p {
-    color: var(--text-muted);
-    line-height: 1.5;
+.note-actions {
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.note-card:hover .note-actions {
+    opacity: 1;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn-icon:hover {
+    opacity: 1;
+    transform: scale(1.2);
 }
 
 .pinned-badge {
@@ -298,9 +384,38 @@ body {
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
-    font-size: 0.75rem;
-    float: right;
+    font-size: 0.7rem;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
     font-weight: 500;
+    z-index: 1;
+}
+
+.category-badge {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    display: inline-block;
+    margin-top: 0.5rem;
+}
+
+.note-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.note-tags .tag {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
 }
 
 /* Priority badges */
@@ -596,8 +711,8 @@ body {
         gap: 1rem;
     }
 
-    .notes-container {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    .note-card, .note-card-sizer {
+        width: calc(50% - 8px) !important;
     }
 }
 
@@ -676,17 +791,35 @@ body {
     }
 
     /* Notes - Mobile single column */
-    .notes-container {
-        grid-template-columns: 1fr;
+    .notes-header {
+        flex-direction: column;
+        align-items: stretch;
         gap: 1rem;
+    }
+
+    .notes-controls {
+        flex-direction: column;
+    }
+
+    .notes-controls select {
+        flex: 1;
+    }
+
+    .note-card, .note-card-sizer {
+        width: 100% !important;
     }
 
     .note-card {
         padding: 1rem;
+        margin-bottom: 1rem;
     }
 
     .note-card h3 {
         font-size: 1.1rem;
+    }
+
+    .note-actions {
+        opacity: 1; /* Always show on mobile */
     }
 
     /* Buttons - Touch friendly */
